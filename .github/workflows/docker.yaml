@@ -1,6 +1,12 @@
 name: Docker Build
 on:
   workflow_dispatch:
+    inputs:
+      push_build:
+        description: 'Should the build-push-action push to the registry?'
+        required: true
+        default: false
+        type: boolean
   push:
     branches:
       - main
@@ -47,5 +53,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64, linux/arm64
           provenance: mode=min
-          push: ${{ github.event_name == 'push' && 'true' || 'false' }}
+          push: ${{ github.event_name == 'push' && 'true' || inputs.push_build == true }}
           tags: ${{ steps.meta.outputs.tags }}
