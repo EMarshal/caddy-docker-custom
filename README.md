@@ -2,12 +2,16 @@
 
 ![Build Status](https://github.com/emarshal/caddy-docker-custom/actions/workflows/docker.yaml/badge.svg)
 
-Heavily inspired by [IAreKyleW00t/docker-caddy-cloudflare](https://github.com/IAreKyleW00t/docker-caddy-cloudflare), the official [Caddy](https://hub.docker.com/_/caddy) Docker image with additional modules added:
+Heavily inspired by [IAreKyleW00t/docker-caddy-cloudflare](https://github.com/IAreKyleW00t/docker-caddy-cloudflare), the official [Caddy](https://github.com/caddyserver/caddy/) [Docker image](https://hub.docker.com/_/caddy) with additional modules added:
 * [caddy-dns/cloudflare](https://github.com/caddy-dns/cloudflare) module for DNS-01 ACME validation support with Cloudflare.
 
 ```sh
 docker pull docker.io/emarshal/caddy-custom:latest
 ```
+
+## Release Notes
+
+See [Caddy Releases](https://github.com/caddyserver/caddy/releases).
 
 ## Customization
 
