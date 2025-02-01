@@ -14,7 +14,7 @@ on:
 
 jobs:
   docker-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
     steps:
@@ -22,7 +22,6 @@ jobs:
         with:
           sparse-checkout: |
             Dockerfile
-          show-progress: 'false'
           sparse-checkout-cone-mode: false
       - name: Hadolint Action
         uses: hadolint/hadolint-action@v3.1.0
