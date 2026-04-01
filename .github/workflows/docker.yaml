@@ -32,7 +32,7 @@ jobs:
         run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+\.[0-9]+$' Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
       - name: Generate Docker metadata with Caddy version
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: docker.io/emarshal/caddy-custom
           tags: |
