@@ -27,4 +27,4 @@ jobs:
             .github/workflows/lint.yaml
           sparse-checkout-cone-mode: false
       - name: Hadolint Action
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@v3.4.0
