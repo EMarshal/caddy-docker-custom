@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       push_build:
-        description: 'Should the build-push-action push to the registry?'
+        description: 'Should the build push to the registry?'
         required: true
         default: false
         type: boolean
@@ -13,11 +13,14 @@ on:
     paths:
       - Dockerfile
 
+permissions:
+  contents: read
+
 jobs:
-  docker-build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+  version:
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -27,30 +30,24 @@ jobs:
       - name: Parse Caddy version
         id: version
         run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+\.[0-9]+$' Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
-      - name: Generate Docker metadata with Caddy version
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: docker.io/emarshal/caddy-custom
-          tags: |
-            type=semver,pattern={{version}},value=v${{ steps.version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.version.outputs.version }}
-            type=semver,pattern={{major}},value=v${{ steps.version.outputs.version }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4.6.0
-        with:
+
+  docker-build:
+    needs: version
+    uses: docker/github-builder/.github/workflows/build.yml@v1
+    permissions:
+      contents: read # to fetch the repository content
+      id-token: write # for signing attestations with GitHub OIDC
+    with:
+      output: image
+      push: ${{ github.event_name == 'push' || inputs.push_build == true }}
+      platforms: linux/amd64,linux/arm64
+      meta-images: docker.io/emarshal/caddy-custom
+      meta-tags: |
+        type=semver,pattern={{version}},value=v${{ needs.version.outputs.version }}
+        type=semver,pattern={{major}}.{{minor}},value=v${{ needs.version.outputs.version }}
+        type=semver,pattern={{major}},value=v${{ needs.version.outputs.version }}
+    secrets:
+      registry-auths: |
+        - registry: docker.io
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v7.3.0
-        with:
-          annotations: ${{ steps.meta.outputs.annotations }}
-          context: .
-          no-cache: true
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64, linux/arm64
-          provenance: mode=min
-          push: ${{ github.event_name == 'push' && 'true' || inputs.push_build == true }}
-          tags: ${{ steps.meta.outputs.tags }}
